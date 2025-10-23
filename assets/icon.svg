@@ -1,0 +1,15 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <!-- Light grey background -->
+  <rect width="512" height="512" fill="#CCCCCC"/>
+  <!-- Dark grey padlock -->
+  <g transform="translate(128, 128)">
+    <!-- Lock body -->
+    <rect x="64" y="160" width="128" height="96" rx="16" fill="#333333"/>
+    <!-- Lock shackle -->
+    <rect x="84" y="96" width="88" height="80" rx="44" fill="#333333"/>
+    <rect x="96" y="176" width="64" height="16" fill="#333333"/>
+    <!-- Keyhole -->
+    <circle cx="128" cy="208" r="8" fill="#CCCCCC"/>
+    <rect x="120" y="208" width="16" height="24" fill="#CCCCCC"/>
+  </g>
+</svg>
