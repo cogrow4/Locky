@@ -39,8 +39,12 @@ jobs:
     - name: Install dependencies
       run: npm ci
 
-    - name: Build icons
-      run: node scripts/build-icons.js
+    - name: Prepare icons
+      run: |
+        mkdir -p assets/build
+        cp assets/icon.icns assets/build/
+        cp assets/icon.ico assets/build/
+        cp assets/icon.png assets/build/
 
     - name: Build application
       run: npm run dist -- --publish=never
