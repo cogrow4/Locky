@@ -4,5 +4,7 @@ node_modules/
 Thumbs.db
 dist/
 build/
+assets/build/
+scripts/
 .env
 .vscode/settings.json

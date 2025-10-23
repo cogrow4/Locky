@@ -52,13 +52,17 @@ async function buildIcons() {
     }
   }
 
-  // Convert iconset to ICNS using iconutil
-  const { execSync } = require('child_process');
-  try {
-    execSync(`iconutil -c icns "${iconsetDir}" -o "${path.join(buildDir, 'icon.icns')}"`);
-    console.log('✓ Generated ICNS file');
-  } catch (error) {
-    console.warn('Warning: ICNS generation failed. Make sure iconutil is available on macOS.');
+  // Convert iconset to ICNS using iconutil (macOS only)
+  if (process.platform === 'darwin') {
+    const { execSync } = require('child_process');
+    try {
+      execSync(`iconutil -c icns "${iconsetDir}" -o "${path.join(buildDir, 'icon.icns')}"`, { stdio: 'inherit' });
+      console.log('✓ Generated ICNS file');
+    } catch (error) {
+      console.warn('Warning: ICNS generation failed. Make sure iconutil is available on macOS.');
+    }
+  } else {
+    console.log('Skipping ICNS generation (macOS only)');
   }
 
   // Generate ICO for Windows

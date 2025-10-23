@@ -41,12 +41,9 @@ jobs:
 
     - name: Build icons
       run: node scripts/build-icons.js
-      if: matrix.os == 'macos-latest'
 
     - name: Build application
-      run: |
-        npm run build
-        npm run dist -- --publish=never
+      run: npm run dist -- --publish=never
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
