@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Locky - Secure File Vault</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .vault-item {
+            transition: all 0.2s ease;
+        }
+        .vault-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .drop-zone {
+            border: 2px dashed #9ca3af;
+            border-radius: 0.5rem;
+            transition: all 0.2s ease;
+        }
+        .drop-zone.drag-over {
+            border-color: #3b82f6;
+            background-color: rgba(59, 130, 246, 0.05);
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <!-- Header -->
+        <header class="mb-8 text-center">
+            <h1 class="text-4xl font-bold text-gray-800 mb-2">Locky</h1>
+            <p class="text-gray-600">Your Secure File Vault</p>
+        </header>
+
+        <!-- Main Content -->
+        <div id="app" class="bg-white rounded-lg shadow-lg p-6">
+            <!-- Vault Selection/Login -->
+            <div id="vault-selection" class="text-center py-8">
+                <h2 class="text-2xl font-semibold mb-4">Select or Create a Vault</h2>
+                <div class="flex justify-center gap-4 flex-wrap">
+                    <button id="create-vault-btn" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg transition-colors">
+                        <i class="fas fa-plus mr-2"></i>Create New Vault
+                    </button>
+                    <button id="list-vaults-btn" class="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-lg transition-colors">
+                        <i class="fas fa-list mr-2"></i>List My Vaults
+                    </button>
+                </div>
+
+                <!-- Vault List (Hidden by default) -->
+                <div id="vault-list" class="hidden mt-6">
+                    <h3 class="text-lg font-medium mb-3">Available Vaults</h3>
+                    <div id="vault-list-items" class="space-y-2">
+                        <!-- Vault items will be populated here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Vault Creation Form (Hidden by default) -->
+            <div id="vault-creation" class="hidden">
+                <h2 class="text-2xl font-semibold mb-4">Create New Vault</h2>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Vault Name</label>
+                        <input type="text" id="vault-name" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="My Secure Vault">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                        <input type="password" id="vault-password" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Enter a strong password">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
+                        <input type="password" id="vault-confirm-password" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Confirm your password">
+                    </div>
+                    <div class="mt-6 flex justify-end space-x-3">
+                        <button id="cancel-vault-creation" class="px-4 py-2 text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50">
+                            Cancel
+                        </button>
+                        <button id="create-vault-confirm" class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
+                            Create Vault
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Vault Interface (Hidden by default) -->
+            <div id="vault-interface" class="hidden">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 id="vault-title" class="text-2xl font-semibold">My Vault</h2>
+                    <div class="flex space-x-2">
+                        <button id="add-files-btn" class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 flex items-center">
+                            <i class="fas fa-plus mr-2"></i> Add Files
+                        </button>
+                        <button id="lock-vault-btn" class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 flex items-center">
+                            <i class="fas fa-lock mr-2"></i> Lock Vault
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Drop Zone -->
+                <div id="drop-zone" class="drop-zone p-8 mb-6 text-center cursor-pointer">
+                    <div class="py-12">
+                        <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-3"></i>
+                        <p class="text-gray-500">Drag and drop files here or click to browse</p>
+                        <p class="text-sm text-gray-400 mt-1">Files will be encrypted and stored securely</p>
+                    </div>
+                </div>
+
+                <!-- File List -->
+                <div id="file-list" class="space-y-3">
+                    <!-- Files will be listed here -->
+                </div>
+            </div>
+
+            <!-- Status Messages -->
+            <div id="status-message" class="mt-4 p-3 rounded-md hidden">
+                <p class="text-center"></p>
+            </div>
+        </div>
+
+        <!-- File Input (Hidden) -->
+        <input type="file" id="file-input" multiple style="display: none;">
+        <input type="file" id="save-file-input" style="display: none;">
+    </div>
+
+    <script src="renderer.js"></script>
+</body>
+</html>

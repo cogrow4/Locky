@@ -1,0 +1,21 @@
+{
+  "name": "locky",
+  "version": "1.0.0",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": ["encryption", "security", "file-vault"],
+  "author": "",
+  "license": "ISC",
+  "description": "A secure file vault application with encryption",
+  "dependencies": {
+    "crypto-js": "^4.2.0",
+    "fs-extra": "^11.3.2",
+    "uuid": "^8.3.2"
+  },
+  "devDependencies": {
+    "electron": "^28.1.0"
+  }
+}
