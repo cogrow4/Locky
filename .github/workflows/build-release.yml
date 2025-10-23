@@ -68,8 +68,20 @@ jobs:
       with:
         path: artifacts/
 
-    - uses: "marvinpinto/action-automatic-releases@latest"
+
+    - name: Create Release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        repo_token: "${{ secrets.GITHUB_TOKEN }}"
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }}
+        draft: false
         prerelease: false
+
+    - name: Upload Release Assets
+      uses: softprops/action-gh-release@v1
+      with:
         files: artifacts/**/*
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
