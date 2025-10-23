@@ -3,7 +3,7 @@ name: Build and Release
 on:
   push:
     tags:
-      - 'v*'
+      - "v*"
   workflow_dispatch:
 
 jobs:
@@ -68,10 +68,8 @@ jobs:
       with:
         path: artifacts/
 
-    - name: Create Release
-      uses: softprops/action-gh-release@v1
+    - uses: "marvinpinto/action-automatic-releases@latest"
       with:
+        repo_token: "${{ secrets.GITHUB_TOKEN }}"
+        prerelease: false
         files: artifacts/**/*
-        generate_release_notes: true
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
