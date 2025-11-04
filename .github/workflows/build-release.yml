@@ -12,6 +12,10 @@ permissions:
   actions: write   # for creating check runs and status updates
   checks: write    # for creating check runs and status updates
 
+# Default environment variables
+env:
+  BUILD_DIR: dist
+
 jobs:
   build:
     strategy:
@@ -57,11 +61,18 @@ jobs:
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+    - name: List build artifacts
+      run: |
+        echo "Built files in ${{ env.BUILD_DIR }}:"
+        find ${{ env.BUILD_DIR }} -type f -exec ls -la {} \;
+
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: Locky-${{ matrix.os }}-${{ matrix.arch }}
-        path: dist/
+        name: artifacts-${{ matrix.os }}-${{ matrix.arch }}
+        path: ${{ env.BUILD_DIR }}/*
+        if-no-files-found: error
+        retention-days: 1
 
   release:
     needs: build
@@ -72,15 +83,12 @@ jobs:
     - name: Download all artifacts
       uses: actions/download-artifact@v4
       with:
-        path: artifacts/
+        path: artifacts
 
-    - name: Find artifacts
-      id: find-artifacts
+    - name: List downloaded artifacts
       run: |
-        # Find all build artifacts and output them as a space-separated list
-        ARTIFACTS=$(find . -path '*/dist/*' -type f \( -name '*.zip' -o -name '*.dmg' -o -name '*.exe' -o -name '*.AppImage' \) | tr '\n' ' ')
-        echo "artifacts=$ARTIFACTS" >> $GITHUB_OUTPUT
-        echo "Found artifacts: $ARTIFACTS"
+        echo "Downloaded artifacts:"
+        find artifacts -type f | xargs ls -la
 
     - name: Create Release
       id: create_release
@@ -112,12 +120,12 @@ jobs:
         # Extract the release ID from the upload URL
         RELEASE_ID=$(echo "${{ steps.create_release.outputs.upload_url }}" | grep -oE '[0-9]+' | head -1)
         
-        # Upload each found artifact
-        for file in ${{ steps.find-artifacts.outputs.artifacts }}; do
+        # Find and upload all files in the artifacts directory
+        find artifacts -type f | while read -r file; do
           if [ -f "$file" ]; then
             echo "Uploading $file..."
-            gh release upload $RELEASE_ID "$file" --clobber
-          else
-            echo "Warning: File not found: $file"
+            gh release upload $RELEASE_ID "$file" --clobber || echo "Failed to upload $file"
           fi
         done
+        
+        echo "All files have been processed"
