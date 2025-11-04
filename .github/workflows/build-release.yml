@@ -6,6 +6,12 @@ on:
       - "v*"
   workflow_dispatch:
 
+# Set the required permissions for the workflow
+permissions:
+  contents: write  # for creating releases and uploading artifacts
+  actions: write   # for creating check runs and status updates
+  checks: write    # for creating check runs and status updates
+
 jobs:
   build:
     strategy:
@@ -68,20 +74,30 @@ jobs:
       with:
         path: artifacts/
 
+    - name: Find artifacts
+      id: find-artifacts
+      run: |
+        echo "artifacts=$(find . -path '*/dist/*' -type f -name '*.zip' -o -name '*.dmg' -o -name '*.exe' -o -name '*.AppImage' | tr '\n' ' ')" >> $GITHUB_OUTPUT
 
     - name: Create Release
-      uses: actions/create-release@v1
+      id: create_release
+      uses: actions/create-release@v2
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
       with:
         tag_name: ${{ github.ref }}
-        release_name: Release ${{ github.ref }}
+        release_name: Release ${{ github.ref_name }}
+        body: |
+          ### Changes
+          - See commit history for details
         draft: false
         prerelease: false
 
     - name: Upload Release Assets
-      uses: softprops/action-gh-release@v1
-      with:
-        files: artifacts/**/*
+      uses: actions/upload-release-asset@v2
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ${{ env.artifact }}
+        asset_name: ${{ env.artifact_name }}

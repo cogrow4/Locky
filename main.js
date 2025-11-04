@@ -648,7 +648,7 @@ function createWindow() {
                             type: 'info',
                             title: 'About Locky',
                             message: 'Locky - Secure File Vault',
-                            detail: 'An encrypted file storage application with built-in preview and secure password protection.\n\nVersion: 1.0.0'
+                            detail: 'An encrypted file storage application with built-in preview and secure password protection.\n\nVersion: 1.0.0\n\nCopyright Coen Greenleaf 2025'
                         });
                     }
                 }
