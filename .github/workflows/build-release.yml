@@ -77,7 +77,10 @@ jobs:
     - name: Find artifacts
       id: find-artifacts
       run: |
-        echo "artifacts=$(find . -path '*/dist/*' -type f -name '*.zip' -o -name '*.dmg' -o -name '*.exe' -o -name '*.AppImage' | tr '\n' ' ')" >> $GITHUB_OUTPUT
+        # Find all build artifacts and output them as a space-separated list
+        ARTIFACTS=$(find . -path '*/dist/*' -type f \( -name '*.zip' -o -name '*.dmg' -o -name '*.exe' -o -name '*.AppImage' \) | tr '\n' ' ')
+        echo "artifacts=$ARTIFACTS" >> $GITHUB_OUTPUT
+        echo "Found artifacts: $ARTIFACTS"
 
     - name: Create Release
       id: create_release
@@ -93,11 +96,28 @@ jobs:
         draft: false
         prerelease: false
 
+    - name: Install GitHub CLI
+      run: |
+        type -p curl >/dev/null || (sudo apt update && sudo apt install curl -y)
+        curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg \
+        && sudo chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg \
+        && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null \
+        && sudo apt update \
+        && sudo apt install gh -y
+
     - name: Upload Release Assets
-      uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ${{ env.artifact }}
-        asset_name: ${{ env.artifact_name }}
+      run: |
+        # Extract the release ID from the upload URL
+        RELEASE_ID=$(echo "${{ steps.create_release.outputs.upload_url }}" | grep -oE '[0-9]+' | head -1)
+        
+        # Upload each found artifact
+        for file in ${{ steps.find-artifacts.outputs.artifacts }}; do
+          if [ -f "$file" ]; then
+            echo "Uploading $file..."
+            gh release upload $RELEASE_ID "$file" --clobber
+          else
+            echo "Warning: File not found: $file"
+          fi
+        done
