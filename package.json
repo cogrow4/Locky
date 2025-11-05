@@ -7,7 +7,15 @@
     "build": "npm run build-icons",
     "build-icons": "node scripts/build-icons.js",
     "dist": "electron-builder",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build:mac": "npm run build-icons && electron-builder --mac --x64 --arm64",
+    "build:win": "npm run build-icons && electron-builder --win --x64 --ia32",
+    "build:win:arm64": "npm run build-icons && electron-builder --win --arm64",
+    "build:linux": "npm run build-icons && electron-builder --linux --x64",
+    "build:linux:arm64": "npm run build-icons && electron-builder --linux --arm64",
+    "build:linux:armv7l": "npm run build-icons && electron-builder --linux --armv7l",
+    "build:linux:deb": "npm run build-icons && electron-builder --linux deb --x64",
+    "build:linux:rpm": "npm run build-icons && electron-builder --linux rpm --x64"
   },
   "keywords": [
     "encryption",
