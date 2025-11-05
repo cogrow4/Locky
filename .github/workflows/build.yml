@@ -27,7 +27,7 @@ jobs:
         run: npm ci
       - name: Check GH_TOKEN presence
         run: |
-          if [ -z "${GH_TOKEN}" ]; then echo "GH_TOKEN is NOT set"; exit 1; else echo "GH_TOKEN is set"; fi
+          if [ -z "$GH_TOKEN" ]; then echo "GH_TOKEN is NOT set"; exit 1; else echo "GH_TOKEN is set"; fi
       - name: Build DMG (universal)
         run: npm run build:mac
       - name: Upload DMG
@@ -102,7 +102,7 @@ jobs:
         run: npm ci
       - name: Check GH_TOKEN presence
         run: |
-          if [ -z "${GH_TOKEN}" ]; then echo "GH_TOKEN is NOT set"; exit 1; else echo "GH_TOKEN is set"; fi
+          if [ -z "$GH_TOKEN" ]; then echo "GH_TOKEN is NOT set"; exit 1; else echo "GH_TOKEN is set"; fi
       - name: Build AppImage
         run: npm run build:linux
       - name: Upload AppImage
@@ -125,7 +125,7 @@ jobs:
         run: npm ci
       - name: Check GH_TOKEN presence
         run: |
-          if [ -z "${GH_TOKEN}" ]; then echo "GH_TOKEN is NOT set"; exit 1; else echo "GH_TOKEN is set"; fi
+          if [ -z "$GH_TOKEN" ]; then echo "GH_TOKEN is NOT set"; exit 1; else echo "GH_TOKEN is set"; fi
       - name: Build AppImage ARM64
         run: npm run build:linux:arm64
       - name: Upload AppImage
@@ -148,7 +148,7 @@ jobs:
         run: npm ci
       - name: Check GH_TOKEN presence
         run: |
-          if [ -z "${GH_TOKEN}" ]; then echo "GH_TOKEN is NOT set"; exit 1; else echo "GH_TOKEN is set"; fi
+          if [ -z "$GH_TOKEN" ]; then echo "GH_TOKEN is NOT set"; exit 1; else echo "GH_TOKEN is set"; fi
       - name: Build AppImage ARMv7l
         run: npm run build:linux:armv7l
       - name: Upload AppImage
@@ -171,7 +171,7 @@ jobs:
         run: npm ci
       - name: Check GH_TOKEN presence
         run: |
-          if [ -z "${GH_TOKEN}" ]; then echo "GH_TOKEN is NOT set"; exit 1; else echo "GH_TOKEN is set"; fi
+          if [ -z "$GH_TOKEN" ]; then echo "GH_TOKEN is NOT set"; exit 1; else echo "GH_TOKEN is set"; fi
       - name: Build DEB packages
         run: npm run build:linux:deb
       - name: Upload DEB packages
@@ -194,7 +194,7 @@ jobs:
         run: npm ci
       - name: Check GH_TOKEN presence
         run: |
-          if [ -z "${GH_TOKEN}" ]; then echo "GH_TOKEN is NOT set"; exit 1; else echo "GH_TOKEN is set"; fi
+          if [ -z "$GH_TOKEN" ]; then echo "GH_TOKEN is NOT set"; exit 1; else echo "GH_TOKEN is set"; fi
       - name: Build RPM packages
         run: npm run build:linux:rpm
       - name: Upload RPM packages
