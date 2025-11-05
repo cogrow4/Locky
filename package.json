@@ -70,8 +70,7 @@
     },
     "win": {
       "icon": "assets/icon.ico",
-      "target": ["nsis", "portable"],
-      "publisherName": "Cogrow4"
+      "target": ["nsis", "portable"]
     },
     "linux": {
       "icon": "assets/icon.png",
