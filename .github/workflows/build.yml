@@ -9,27 +9,23 @@ on:
 permissions:
   contents: write
 
-env:
-  GH_TOKEN: ${{ secrets.GH_TOKEN }}
+# GITHUB_TOKEN is automatically provided by GitHub Actions
 
 jobs:
   build-macos:
-    name: macOS (DMG)
+    name: macOS (Universal DMG)
     runs-on: macos-latest
-    env:
-      GH_TOKEN: ${{ secrets.GH_TOKEN }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20
       - name: Install dependencies
         run: npm ci
-      - name: Check GH_TOKEN presence
-        run: |
-          if [ -z "${GH_TOKEN}" ]; then echo "GH_TOKEN is NOT set"; exit 1; else echo "GH_TOKEN is set"; fi
-      - name: Build DMG
-        run: npm run dist -- --publish=never
+      - name: Generate mac icon (.icns)
+        run: npm run icons:icns
+      - name: Build DMG (universal)
+        run: npm run build:mac
       - name: Upload DMG
         uses: actions/upload-artifact@v4
         with:
@@ -37,48 +33,205 @@ jobs:
           path: dist/*.dmg
 
   build-windows:
-    name: Windows (x64)
+    name: Windows (MSI x64)
     runs-on: windows-latest
-    env:
-      GH_TOKEN: ${{ secrets.GH_TOKEN }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 18
-      - name: Install dependencies
-        run: npm ci
-      - name: Check GH_TOKEN presence
+          node-version: 20
+      - name: Install WiX Toolset
         shell: pwsh
         run: |
-          if (-not $Env:GH_TOKEN) { Write-Host "GH_TOKEN is NOT set"; exit 1 } else { Write-Host "GH_TOKEN is set" }
-      - name: Build Windows
-        run: npm run dist -- --publish=never
-      - name: Upload Installer
+          choco install wixtoolset -y
+      - name: Install dependencies
+        run: npm ci
+      - name: Build MSI
+        run: npm run build:win
+      - name: Upload MSI
         uses: actions/upload-artifact@v4
         with:
           name: Windows-x64
-          path: dist/*.exe
+          path: dist/*.msi
+
+  build-windows-arm64:
+    name: Windows ARM64 (NSIS)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install dependencies
+        run: npm ci
+      - name: Build NSIS ARM64
+        run: npm run build:win:arm64
+      - name: Upload ARM64 Setup
+        uses: actions/upload-artifact@v4
+        with:
+          name: Windows-ARM64
+          path: dist/*-arm64-Setup.exe
 
   build-linux:
     name: Linux x64 (AppImage)
     runs-on: ubuntu-latest
-    env:
-      GH_TOKEN: ${{ secrets.GH_TOKEN }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20
       - name: Install dependencies
         run: npm ci
-      - name: Check GH_TOKEN presence
-        run: |
-          if [ -z "${GH_TOKEN}" ]; then echo "GH_TOKEN is NOT set"; exit 1; else echo "GH_TOKEN is set"; fi
       - name: Build AppImage
-        run: npm run dist -- --publish=never
+        run: npm run build:linux
       - name: Upload AppImage
         uses: actions/upload-artifact@v4
         with:
           name: Linux-x64-AppImage
           path: dist/*.AppImage
+
+  build-linux-arm64:
+    name: Linux ARM64 (AppImage)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install dependencies
+        run: npm ci
+      - name: Build AppImage ARM64
+        run: npm run build:linux:arm64
+      - name: Upload AppImage
+        uses: actions/upload-artifact@v4
+        with:
+          name: Linux-ARM64-AppImage
+          path: dist/*-arm64.AppImage
+
+  build-linux-armv7l:
+    name: Linux ARMv7l (AppImage)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install dependencies
+        run: npm ci
+      - name: Build AppImage ARMv7l
+        run: npm run build:linux:armv7l
+      - name: Upload AppImage
+        uses: actions/upload-artifact@v4
+        with:
+          name: Linux-ARMv7l-AppImage
+          path: dist/*-armv7l.AppImage
+
+  build-linux-deb:
+    name: Linux DEB Packages
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install dependencies
+        run: npm ci
+      - name: Build DEB packages
+        run: npm run build:linux:deb
+      - name: Upload DEB packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: Linux-DEB
+          path: dist/*.deb
+
+  build-linux-rpm:
+    name: Linux RPM Packages
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install dependencies
+        run: npm ci
+      - name: Build RPM packages
+        run: npm run build:linux:rpm
+      - name: Upload RPM packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: Linux-RPM
+          path: dist/*.rpm
+
+  release:
+    name: Create Automatic Release
+    needs: [build-macos, build-windows, build-windows-arm64, build-linux, build-linux-arm64, build-linux-armv7l, build-linux-deb, build-linux-rpm]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Download macOS artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: macOS-DMG
+          path: ./release-artifacts
+      
+      - name: Download Windows x64 artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: Windows-x64
+          path: ./release-artifacts
+      
+      - name: Download Windows ARM64 artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: Windows-ARM64
+          path: ./release-artifacts
+      
+      - name: Download Linux x64 AppImage
+        uses: actions/download-artifact@v4
+        with:
+          name: Linux-x64-AppImage
+          path: ./release-artifacts
+      
+      - name: Download Linux ARM64 AppImage
+        uses: actions/download-artifact@v4
+        with:
+          name: Linux-ARM64-AppImage
+          path: ./release-artifacts
+      
+      - name: Download Linux ARMv7l AppImage
+        uses: actions/download-artifact@v4
+        with:
+          name: Linux-ARMv7l-AppImage
+          path: ./release-artifacts
+      
+      - name: Download Linux DEB packages
+        uses: actions/download-artifact@v4
+        with:
+          name: Linux-DEB
+          path: ./release-artifacts
+      
+      - name: Download Linux RPM packages
+        uses: actions/download-artifact@v4
+        with:
+          name: Linux-RPM
+          path: ./release-artifacts
+      
+      - name: Display downloaded artifacts
+        run: ls -R ./release-artifacts
+      
+      - name: Create Automatic Release
+        uses: marvinpinto/action-automatic-releases@v1.2.1
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          automatic_release_tag: "latest"
+          prerelease: false
+          title: "Latest Development Build"
+          files: |
+            ./release-artifacts/*.dmg
+            ./release-artifacts/*.msi
+            ./release-artifacts/*.exe
+            ./release-artifacts/*.AppImage
+            ./release-artifacts/*.deb
+            ./release-artifacts/*.rpm
