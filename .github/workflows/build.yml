@@ -9,12 +9,15 @@ on:
 permissions:
   contents: write
 
-# GITHUB_TOKEN is automatically provided by GitHub Actions
+env:
+  GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
 jobs:
   build-macos:
     name: macOS (Universal DMG)
     runs-on: macos-latest
+    env:
+      GH_TOKEN: ${{ secrets.GH_TOKEN }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -22,8 +25,9 @@ jobs:
           node-version: 20
       - name: Install dependencies
         run: npm ci
-      - name: Generate mac icon (.icns)
-        run: npm run icons:icns
+      - name: Check GH_TOKEN presence
+        run: |
+          if [ -z "${GH_TOKEN}" ]; then echo "GH_TOKEN is NOT set"; exit 1; else echo "GH_TOKEN is set"; fi
       - name: Build DMG (universal)
         run: npm run build:mac
       - name: Upload DMG
@@ -35,6 +39,8 @@ jobs:
   build-windows:
     name: Windows (MSI x64)
     runs-on: windows-latest
+    env:
+      GH_TOKEN: ${{ secrets.GH_TOKEN }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -46,6 +52,10 @@ jobs:
           choco install wixtoolset -y
       - name: Install dependencies
         run: npm ci
+      - name: Check GH_TOKEN presence
+        shell: pwsh
+        run: |
+          if (-not $Env:GH_TOKEN) { Write-Host "GH_TOKEN is NOT set"; exit 1 } else { Write-Host "GH_TOKEN is set" }
       - name: Build MSI
         run: npm run build:win
       - name: Upload MSI
@@ -57,6 +67,8 @@ jobs:
   build-windows-arm64:
     name: Windows ARM64 (NSIS)
     runs-on: windows-latest
+    env:
+      GH_TOKEN: ${{ secrets.GH_TOKEN }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -64,6 +76,10 @@ jobs:
           node-version: 20
       - name: Install dependencies
         run: npm ci
+      - name: Check GH_TOKEN presence
+        shell: pwsh
+        run: |
+          if (-not $Env:GH_TOKEN) { Write-Host "GH_TOKEN is NOT set"; exit 1 } else { Write-Host "GH_TOKEN is set" }
       - name: Build NSIS ARM64
         run: npm run build:win:arm64
       - name: Upload ARM64 Setup
@@ -75,6 +91,8 @@ jobs:
   build-linux:
     name: Linux x64 (AppImage)
     runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GH_TOKEN }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -82,6 +100,9 @@ jobs:
           node-version: 20
       - name: Install dependencies
         run: npm ci
+      - name: Check GH_TOKEN presence
+        run: |
+          if [ -z "${GH_TOKEN}" ]; then echo "GH_TOKEN is NOT set"; exit 1; else echo "GH_TOKEN is set"; fi
       - name: Build AppImage
         run: npm run build:linux
       - name: Upload AppImage
@@ -93,6 +114,8 @@ jobs:
   build-linux-arm64:
     name: Linux ARM64 (AppImage)
     runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GH_TOKEN }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -100,6 +123,9 @@ jobs:
           node-version: 20
       - name: Install dependencies
         run: npm ci
+      - name: Check GH_TOKEN presence
+        run: |
+          if [ -z "${GH_TOKEN}" ]; then echo "GH_TOKEN is NOT set"; exit 1; else echo "GH_TOKEN is set"; fi
       - name: Build AppImage ARM64
         run: npm run build:linux:arm64
       - name: Upload AppImage
@@ -111,6 +137,8 @@ jobs:
   build-linux-armv7l:
     name: Linux ARMv7l (AppImage)
     runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GH_TOKEN }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -118,6 +146,9 @@ jobs:
           node-version: 20
       - name: Install dependencies
         run: npm ci
+      - name: Check GH_TOKEN presence
+        run: |
+          if [ -z "${GH_TOKEN}" ]; then echo "GH_TOKEN is NOT set"; exit 1; else echo "GH_TOKEN is set"; fi
       - name: Build AppImage ARMv7l
         run: npm run build:linux:armv7l
       - name: Upload AppImage
@@ -129,6 +160,8 @@ jobs:
   build-linux-deb:
     name: Linux DEB Packages
     runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GH_TOKEN }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -136,6 +169,9 @@ jobs:
           node-version: 20
       - name: Install dependencies
         run: npm ci
+      - name: Check GH_TOKEN presence
+        run: |
+          if [ -z "${GH_TOKEN}" ]; then echo "GH_TOKEN is NOT set"; exit 1; else echo "GH_TOKEN is set"; fi
       - name: Build DEB packages
         run: npm run build:linux:deb
       - name: Upload DEB packages
@@ -147,6 +183,8 @@ jobs:
   build-linux-rpm:
     name: Linux RPM Packages
     runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GH_TOKEN }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -154,6 +192,9 @@ jobs:
           node-version: 20
       - name: Install dependencies
         run: npm ci
+      - name: Check GH_TOKEN presence
+        run: |
+          if [ -z "${GH_TOKEN}" ]; then echo "GH_TOKEN is NOT set"; exit 1; else echo "GH_TOKEN is set"; fi
       - name: Build RPM packages
         run: npm run build:linux:rpm
       - name: Upload RPM packages
