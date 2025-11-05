@@ -4,18 +4,16 @@
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "build": "npm run build-icons",
-    "build-icons": "node scripts/build-icons.js",
-    "dist": "electron-builder",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build:mac": "npm run build-icons && electron-builder --mac --x64 --arm64",
-    "build:win": "npm run build-icons && electron-builder --win --x64 --ia32",
-    "build:win:arm64": "npm run build-icons && electron-builder --win --arm64",
-    "build:linux": "npm run build-icons && electron-builder --linux --x64",
-    "build:linux:arm64": "npm run build-icons && electron-builder --linux --arm64",
-    "build:linux:armv7l": "npm run build-icons && electron-builder --linux --armv7l",
-    "build:linux:deb": "npm run build-icons && electron-builder --linux deb --x64",
-    "build:linux:rpm": "npm run build-icons && electron-builder --linux rpm --x64"
+    "build": "echo 'Skipping icon generation - using pre-built icons'",
+    "build:mac": "electron-builder --mac --x64 --arm64",
+    "build:win": "electron-builder --win --x64 --ia32",
+    "build:win:arm64": "electron-builder --win --arm64",
+    "build:linux": "electron-builder --linux --x64",
+    "build:linux:arm64": "electron-builder --linux --arm64",
+    "build:linux:armv7l": "electron-builder --linux --armv7l",
+    "build:linux:deb": "electron-builder --linux deb --x64",
+    "build:linux:rpm": "electron-builder --linux rpm --x64",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
     "encryption",
@@ -40,7 +38,8 @@
     "appId": "com.cogrow4.locky",
     "productName": "Locky",
     "directories": {
-      "output": "dist"
+      "output": "dist",
+      "buildResources": "assets"
     },
     "files": [
       "**/*",
@@ -54,39 +53,18 @@
     ],
     "mac": {
       "icon": "assets/build/icon.icns",
-      "target": [
-        {
-          "target": "dmg",
-          "arch": [
-            "x64",
-            "arm64"
-          ]
-        }
-      ]
+      "target": ["dmg", "zip"],
+      "arch": ["x64", "arm64"]
     },
     "win": {
       "icon": "assets/build/icon.ico",
-      "target": [
-        {
-          "target": "nsis",
-          "arch": [
-            "x64",
-            "ia32"
-          ]
-        }
-      ]
+      "target": ["nsis", "portable"],
+      "arch": ["x64", "ia32", "arm64"]
     },
     "linux": {
       "icon": "assets/build/icon.png",
-      "target": [
-        {
-          "target": "AppImage",
-          "arch": [
-            "x64",
-            "arm64"
-          ]
-        }
-      ]
+      "target": ["AppImage", "deb", "rpm"],
+      "arch": ["x64", "arm64", "armv7l"]
     }
   }
 }
