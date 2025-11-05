@@ -6,7 +6,7 @@
     "start": "electron .",
     "build": "echo 'Using pre-built icons from assets/build/ directory'",
     "build:mac": "electron-builder --mac --x64 --arm64",
-    "build:win": "electron-builder --win --x64 --ia32",
+    "build:win": "electron-builder --win --x64",
     "build:win:arm64": "electron-builder --win --arm64",
     "build:linux": "electron-builder --linux --x64",
     "build:linux:arm64": "electron-builder --linux --arm64",
@@ -89,11 +89,11 @@
       },
       {
         "target": "nsis",
-        "arch": ["x64", "ia32", "arm64"]
+        "arch": ["x64", "arm64"]
       },
       {
         "target": "portable",
-        "arch": ["x64", "ia32", "arm64"]
+        "arch": ["x64", "arm64"]
       },
       {
         "target": "AppImage",
