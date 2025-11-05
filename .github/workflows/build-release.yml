@@ -1,4 +1,4 @@
-name: Build and Release
+name: Build Desktop Packages
 
 on:
   push:
@@ -6,134 +6,115 @@ on:
       - "v*"
   workflow_dispatch:
 
-# Set the required permissions for the workflow
 permissions:
-  contents: write  # for creating releases and uploading artifacts
-  actions: write   # for creating check runs and status updates
-  checks: write    # for creating check runs and status updates
+  contents: write
 
-# Default environment variables
 env:
-  BUILD_DIR: dist
+  GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
 jobs:
-  build:
-    strategy:
-      matrix:
-        include:
-          - os: ubuntu-latest
-            arch: x64
-          - os: ubuntu-latest
-            arch: arm64
-          - os: windows-latest
-            arch: x64
-          - os: windows-latest
-            arch: ia32
-          - os: macos-latest
-            arch: x64
-          - os: macos-latest
-            arch: arm64
-
-    runs-on: ${{ matrix.os }}
-
+  build-macos:
+    name: macOS (Universal DMG)
+    runs-on: macos-latest
+    env:
+      GH_TOKEN: ${{ secrets.GH_TOKEN }}
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18
+      - name: Install dependencies
+        run: npm ci
+      - name: Check GH_TOKEN presence
+        run: |
+          if [ -z "${GH_TOKEN}" ]; then echo "GH_TOKEN is NOT set"; exit 1; else echo "GH_TOKEN is set"; fi
+      - name: Build DMG
+        run: npm run dist -- --publish=never
+      - name: Upload DMG
+        uses: actions/upload-artifact@v4
+        with:
+          name: macOS-DMG
+          path: dist/*.dmg
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '18'
-        cache: 'npm'
+  build-windows:
+    name: Windows (x64)
+    runs-on: windows-latest
+    env:
+      GH_TOKEN: ${{ secrets.GH_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18
+      - name: Install dependencies
+        run: npm ci
+      - name: Check GH_TOKEN presence
+        shell: pwsh
+        run: |
+          if (-not $Env:GH_TOKEN) { Write-Host "GH_TOKEN is NOT set"; exit 1 } else { Write-Host "GH_TOKEN is set" }
+      - name: Build Windows
+        run: npm run dist -- --publish=never
+      - name: Upload Installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: Windows-x64
+          path: dist/*.exe
 
-    - name: Install dependencies
-      run: npm ci
-
-    - name: Prepare icons
-      run: |
-        mkdir -p assets/build
-        cp assets/icon.icns assets/build/
-        cp assets/icon.ico assets/build/
-        cp assets/icon.png assets/build/
-
-    - name: Build application
-      run: npm run dist -- --publish=never
-      env:
-        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-    - name: List build artifacts (Unix)
-      if: runner.os != 'Windows'
-      run: |
-        echo "Built files in ${{ env.BUILD_DIR }}:"
-        find ${{ env.BUILD_DIR }} -type f -exec ls -la {} \;
-
-    - name: List build artifacts (Windows)
-      if: runner.os == 'Windows'
-      shell: pwsh
-      run: |
-        Write-Host "Built files in ${{ env.BUILD_DIR }}:"
-        Get-ChildItem -Path ${{ env.BUILD_DIR }} -Recurse -File | Format-Table FullName, Length, LastWriteTime
-
-    - name: Upload build artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: artifacts-${{ matrix.os }}-${{ matrix.arch }}
-        path: ${{ env.BUILD_DIR }}/*
-        if-no-files-found: error
-        retention-days: 1
+  build-linux:
+    name: Linux x64 (AppImage)
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GH_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18
+      - name: Install dependencies
+        run: npm ci
+      - name: Check GH_TOKEN presence
+        run: |
+          if [ -z "${GH_TOKEN}" ]; then echo "GH_TOKEN is NOT set"; exit 1; else echo "GH_TOKEN is set"; fi
+      - name: Build AppImage
+        run: npm run dist -- --publish=never
+      - name: Upload AppImage
+        uses: actions/upload-artifact@v4
+        with:
+          name: Linux-x64-AppImage
+          path: dist/*.AppImage
 
   release:
-    needs: build
+    needs: [build-macos, build-windows, build-linux]
     runs-on: ubuntu-latest
     if: contains(github.ref, 'refs/tags/')
-
     steps:
-    - name: Download all artifacts
-      uses: actions/download-artifact@v4
-      with:
-        path: artifacts
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
 
-    - name: List downloaded artifacts
-      run: |
-        echo "Downloaded artifacts:"
-        find artifacts -type f | xargs ls -la
+      - name: List downloaded artifacts
+        run: |
+          echo "Downloaded artifacts:"
+          find artifacts -type f | xargs ls -la
 
-    - name: Create Release
-      id: create_release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: ${{ github.ref }}
-        release_name: Release ${{ github.ref_name }}
-        body: |
-          ### Changes
-          - See commit history for details
-        draft: false
-        prerelease: false
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref_name }}
+          body: |
+            ### Changes
+            - See commit history for details
+          draft: false
+          prerelease: false
 
-    - name: Install GitHub CLI
-      run: |
-        type -p curl >/dev/null || (sudo apt update && sudo apt install curl -y)
-        curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg \
-        && sudo chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg \
-        && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null \
-        && sudo apt update \
-        && sudo apt install gh -y
-
-    - name: Upload Release Assets
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: |
-        # Extract the release ID from the upload URL
-        RELEASE_ID=$(echo "${{ steps.create_release.outputs.upload_url }}" | grep -oE '[0-9]+' | head -1)
-        
-        # Find and upload all files in the artifacts directory
-        find artifacts -type f | while read -r file; do
-          if [ -f "$file" ]; then
-            echo "Uploading $file..."
-            gh release upload $RELEASE_ID "$file" --clobber || echo "Failed to upload $file"
-          fi
-        done
-        
-        echo "All files have been processed"
+      - name: Upload Release Assets
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./artifacts/**/*
+          asset_name: ${{ github.ref_name }}-${{ contains(needs.*.result, 'success') && 'full' || 'partial' }}.zip
