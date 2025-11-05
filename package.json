@@ -4,7 +4,7 @@
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "build": "echo 'Skipping icon generation - using pre-built icons'",
+    "build": "echo 'Using pre-built icons from assets/build/ directory'",
     "build:mac": "electron-builder --mac --x64 --arm64",
     "build:win": "electron-builder --win --x64 --ia32",
     "build:win:arm64": "electron-builder --win --arm64",
@@ -39,32 +39,74 @@
     "productName": "Locky",
     "directories": {
       "output": "dist",
-      "buildResources": "assets"
+      "buildResources": "assets",
+      "app": "."
     },
+    "extraResources": [
+      {
+        "from": "assets",
+        "to": "assets",
+        "filter": ["icon.*"]
+      }
+    ],
     "files": [
       "**/*",
-      "!assets/build/icon.iconset/",
+      "!assets/build/icon.iconset",
+      "!assets/build/icon.icns.icns",
       "!assets/icon.svg",
-      "!scripts/",
+      "!scripts",
+      "!.github",
+      "!.gitignore",
       "!README.md",
       "!LICENSE",
       "!package-lock.json",
-      "!**/*.md"
+      "!**/*.md",
+      "!**/.DS_Store"
     ],
     "mac": {
-      "icon": "assets/build/icon.icns",
+      "icon": "assets/icon.icns",
       "target": ["dmg", "zip"],
-      "arch": ["x64", "arm64"]
+      "category": "public.app-category.utilities"
     },
     "win": {
-      "icon": "assets/build/icon.ico",
+      "icon": "assets/icon.ico",
       "target": ["nsis", "portable"],
-      "arch": ["x64", "ia32", "arm64"]
+      "publisherName": "Cogrow4"
     },
     "linux": {
-      "icon": "assets/build/icon.png",
+      "icon": "assets/icon.png",
       "target": ["AppImage", "deb", "rpm"],
-      "arch": ["x64", "arm64", "armv7l"]
+      "category": "Utility"
+    },
+    "target": [
+      {
+        "target": "dmg",
+        "arch": ["x64", "arm64"]
+      },
+      {
+        "target": "nsis",
+        "arch": ["x64", "ia32", "arm64"]
+      },
+      {
+        "target": "portable",
+        "arch": ["x64", "ia32", "arm64"]
+      },
+      {
+        "target": "AppImage",
+        "arch": ["x64", "arm64", "armv7l"]
+      },
+      {
+        "target": "deb",
+        "arch": ["x64", "arm64", "armv7l"]
+      },
+      {
+        "target": "rpm",
+        "arch": ["x64", "arm64", "armv7l"]
+      }
+    ],
+    "publish": {
+      "provider": "github",
+      "releaseType": "draft"
     }
   }
 }
