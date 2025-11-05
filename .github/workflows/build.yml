@@ -25,7 +25,7 @@ jobs:
           node-version: 20
       - name: Install dependencies
         run: npm ci
-      - name: Check GH_TOKEN presence
+      - name: Check GITHUB_TOKEN presence
         run: |
           if [ -z "$GITHUB_TOKEN" ]; then echo "GITHUB_TOKEN is NOT set"; exit 1; else echo "GITHUB_TOKEN is set"; fi
       - name: Build DMG (universal)
@@ -52,17 +52,20 @@ jobs:
           choco install wixtoolset -y
       - name: Install dependencies
         run: npm ci
-      - name: Check GH_TOKEN presence
+      - name: Check GITHUB_TOKEN presence
         shell: pwsh
         run: |
-          if (-not $Env:GH_TOKEN) { Write-Host "GH_TOKEN is NOT set"; exit 1 } else { Write-Host "GH_TOKEN is set" }
+          if (-not $Env:GITHUB_TOKEN) { Write-Host "GITHUB_TOKEN is NOT set"; exit 1 } else { Write-Host "GITHUB_TOKEN is set" }
       - name: Build MSI
         run: npm run build:win
-      - name: Upload MSI
+      - name: Upload Windows x64 Installers
         uses: actions/upload-artifact@v4
         with:
           name: Windows-x64
-          path: dist/*.msi
+          path: |
+            dist/*.msi
+            dist/*.exe
+            dist/*Setup*.exe
 
   build-windows-arm64:
     name: Windows ARM64 (NSIS)
@@ -76,10 +79,10 @@ jobs:
           node-version: 20
       - name: Install dependencies
         run: npm ci
-      - name: Check GH_TOKEN presence
+      - name: Check GITHUB_TOKEN presence
         shell: pwsh
         run: |
-          if (-not $Env:GH_TOKEN) { Write-Host "GH_TOKEN is NOT set"; exit 1 } else { Write-Host "GH_TOKEN is set" }
+          if (-not $Env:GITHUB_TOKEN) { Write-Host "GITHUB_TOKEN is NOT set"; exit 1 } else { Write-Host "GITHUB_TOKEN is set" }
       - name: Build NSIS ARM64
         run: npm run build:win:arm64
       - name: Upload ARM64 Setup
@@ -100,7 +103,7 @@ jobs:
           node-version: 20
       - name: Install dependencies
         run: npm ci
-      - name: Check GH_TOKEN presence
+      - name: Check GITHUB_TOKEN presence
         run: |
           if [ -z "$GITHUB_TOKEN" ]; then echo "GITHUB_TOKEN is NOT set"; exit 1; else echo "GITHUB_TOKEN is set"; fi
       - name: Build AppImage
@@ -123,7 +126,7 @@ jobs:
           node-version: 20
       - name: Install dependencies
         run: npm ci
-      - name: Check GH_TOKEN presence
+      - name: Check GITHUB_TOKEN presence
         run: |
           if [ -z "$GITHUB_TOKEN" ]; then echo "GITHUB_TOKEN is NOT set"; exit 1; else echo "GITHUB_TOKEN is set"; fi
       - name: Build AppImage ARM64
@@ -146,7 +149,7 @@ jobs:
           node-version: 20
       - name: Install dependencies
         run: npm ci
-      - name: Check GH_TOKEN presence
+      - name: Check GITHUB_TOKEN presence
         run: |
           if [ -z "$GITHUB_TOKEN" ]; then echo "GITHUB_TOKEN is NOT set"; exit 1; else echo "GITHUB_TOKEN is set"; fi
       - name: Build AppImage ARMv7l
@@ -169,7 +172,7 @@ jobs:
           node-version: 20
       - name: Install dependencies
         run: npm ci
-      - name: Check GH_TOKEN presence
+      - name: Check GITHUB_TOKEN presence
         run: |
           if [ -z "$GITHUB_TOKEN" ]; then echo "GITHUB_TOKEN is NOT set"; exit 1; else echo "GITHUB_TOKEN is set"; fi
       - name: Build DEB packages
@@ -192,7 +195,7 @@ jobs:
           node-version: 20
       - name: Install dependencies
         run: npm ci
-      - name: Check GH_TOKEN presence
+      - name: Check GITHUB_TOKEN presence
         run: |
           if [ -z "$GITHUB_TOKEN" ]; then echo "GITHUB_TOKEN is NOT set"; exit 1; else echo "GITHUB_TOKEN is set"; fi
       - name: Build RPM packages
