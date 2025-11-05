@@ -89,7 +89,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Windows-ARM64
-          path: dist/*-arm64-Setup.exe
+          path: |
+            dist/*arm64*.exe
+            dist/*arm64*.msi
 
   build-linux:
     name: Linux x64 (AppImage)
