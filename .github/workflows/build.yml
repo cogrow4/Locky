@@ -10,14 +10,14 @@ permissions:
   contents: write
 
 env:
-  GH_TOKEN: ${{ secrets.GH_TOKEN }}
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
   build-macos:
     name: macOS (Universal DMG)
     runs-on: macos-latest
     env:
-      GH_TOKEN: ${{ secrets.GH_TOKEN }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -27,7 +27,7 @@ jobs:
         run: npm ci
       - name: Check GH_TOKEN presence
         run: |
-          if [ -z "$GH_TOKEN" ]; then echo "GH_TOKEN is NOT set"; exit 1; else echo "GH_TOKEN is set"; fi
+          if [ -z "$GITHUB_TOKEN" ]; then echo "GITHUB_TOKEN is NOT set"; exit 1; else echo "GITHUB_TOKEN is set"; fi
       - name: Build DMG (universal)
         run: npm run build:mac
       - name: Upload DMG
@@ -40,7 +40,7 @@ jobs:
     name: Windows (MSI x64)
     runs-on: windows-latest
     env:
-      GH_TOKEN: ${{ secrets.GH_TOKEN }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -68,7 +68,7 @@ jobs:
     name: Windows ARM64 (NSIS)
     runs-on: windows-latest
     env:
-      GH_TOKEN: ${{ secrets.GH_TOKEN }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -92,7 +92,7 @@ jobs:
     name: Linux x64 (AppImage)
     runs-on: ubuntu-latest
     env:
-      GH_TOKEN: ${{ secrets.GH_TOKEN }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -102,7 +102,7 @@ jobs:
         run: npm ci
       - name: Check GH_TOKEN presence
         run: |
-          if [ -z "$GH_TOKEN" ]; then echo "GH_TOKEN is NOT set"; exit 1; else echo "GH_TOKEN is set"; fi
+          if [ -z "$GITHUB_TOKEN" ]; then echo "GITHUB_TOKEN is NOT set"; exit 1; else echo "GITHUB_TOKEN is set"; fi
       - name: Build AppImage
         run: npm run build:linux
       - name: Upload AppImage
@@ -115,7 +115,7 @@ jobs:
     name: Linux ARM64 (AppImage)
     runs-on: ubuntu-latest
     env:
-      GH_TOKEN: ${{ secrets.GH_TOKEN }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -125,7 +125,7 @@ jobs:
         run: npm ci
       - name: Check GH_TOKEN presence
         run: |
-          if [ -z "$GH_TOKEN" ]; then echo "GH_TOKEN is NOT set"; exit 1; else echo "GH_TOKEN is set"; fi
+          if [ -z "$GITHUB_TOKEN" ]; then echo "GITHUB_TOKEN is NOT set"; exit 1; else echo "GITHUB_TOKEN is set"; fi
       - name: Build AppImage ARM64
         run: npm run build:linux:arm64
       - name: Upload AppImage
@@ -138,7 +138,7 @@ jobs:
     name: Linux ARMv7l (AppImage)
     runs-on: ubuntu-latest
     env:
-      GH_TOKEN: ${{ secrets.GH_TOKEN }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -148,7 +148,7 @@ jobs:
         run: npm ci
       - name: Check GH_TOKEN presence
         run: |
-          if [ -z "$GH_TOKEN" ]; then echo "GH_TOKEN is NOT set"; exit 1; else echo "GH_TOKEN is set"; fi
+          if [ -z "$GITHUB_TOKEN" ]; then echo "GITHUB_TOKEN is NOT set"; exit 1; else echo "GITHUB_TOKEN is set"; fi
       - name: Build AppImage ARMv7l
         run: npm run build:linux:armv7l
       - name: Upload AppImage
@@ -161,7 +161,7 @@ jobs:
     name: Linux DEB Packages
     runs-on: ubuntu-latest
     env:
-      GH_TOKEN: ${{ secrets.GH_TOKEN }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -171,7 +171,7 @@ jobs:
         run: npm ci
       - name: Check GH_TOKEN presence
         run: |
-          if [ -z "$GH_TOKEN" ]; then echo "GH_TOKEN is NOT set"; exit 1; else echo "GH_TOKEN is set"; fi
+          if [ -z "$GITHUB_TOKEN" ]; then echo "GITHUB_TOKEN is NOT set"; exit 1; else echo "GITHUB_TOKEN is set"; fi
       - name: Build DEB packages
         run: npm run build:linux:deb
       - name: Upload DEB packages
@@ -184,7 +184,7 @@ jobs:
     name: Linux RPM Packages
     runs-on: ubuntu-latest
     env:
-      GH_TOKEN: ${{ secrets.GH_TOKEN }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -194,7 +194,7 @@ jobs:
         run: npm ci
       - name: Check GH_TOKEN presence
         run: |
-          if [ -z "$GH_TOKEN" ]; then echo "GH_TOKEN is NOT set"; exit 1; else echo "GH_TOKEN is set"; fi
+          if [ -z "$GITHUB_TOKEN" ]; then echo "GITHUB_TOKEN is NOT set"; exit 1; else echo "GITHUB_TOKEN is set"; fi
       - name: Build RPM packages
         run: npm run build:linux:rpm
       - name: Upload RPM packages
