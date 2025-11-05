@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 const fs = require('fs-extra');
 const path = require('path');
+const sharp = require('sharp');
 const { execSync } = require('child_process');
 
 // Ensure the build directory exists
@@ -16,7 +17,9 @@ if (!fs.existsSync(iconSource)) {
 
 console.log('Generating application icons...');
 
-try {
+// Make the function async
+async function generateIcons() {
+  try {
   // Create macOS .icns file
   console.log('Generating macOS .icns file...');
   const iconsetDir = path.join(buildDir, 'icon.iconset');
@@ -33,11 +36,11 @@ try {
     const size1xFile = path.join(iconsetDir, `icon_${size}x${size}.png`);
     
     // Generate @2x icon
-    execSync(`npx sharp -i ${iconSource} -o ${size2xFile} resize ${size2x} png`);
+    await sharp(iconSource).resize(size2x, size2x).toFile(size2xFile);
     
     // Generate @1x icon (only if not the same as @2x)
     if (size !== size2x) {
-      execSync(`npx sharp -i ${iconSource} -o ${size1xFile} resize ${size} png`);
+      await sharp(iconSource).resize(size, size).toFile(size1xFile);
     }
   }
   
@@ -46,15 +49,19 @@ try {
   
   // Create Windows .ico file
   console.log('Generating Windows .ico file...');
-  execSync(`npx sharp -i ${iconSource} -o ${path.join(buildDir, 'icon.ico')} resize 256 ico`);
+  await sharp(iconSource).resize(256, 256).toFile(path.join(buildDir, 'icon.ico'));
   
   // Create Linux .png icon
   console.log('Generating Linux .png icon...');
-  execSync(`npx sharp -i ${iconSource} -o ${path.join(buildDir, 'icon.png')} resize 512 png`);
+  await sharp(iconSource).resize(512, 512).toFile(path.join(buildDir, 'icon.png'));
   
-  console.log('Icon generation complete!');
-  process.exit(0);
-} catch (error) {
-  console.error('Error generating icons:', error.message);
-  process.exit(1);
+    console.log('Icon generation complete!');
+    process.exit(0);
+  } catch (error) {
+    console.error('Error generating icons:', error.message);
+    process.exit(1);
+  }
 }
+
+// Run the async function
+generateIcons();
