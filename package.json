@@ -20,9 +20,13 @@
     "security",
     "file-vault"
   ],
-  "author": "",
+  "author": {
+    "name": "Cogrow4",
+    "email": "cogrow4@example.com"
+  },
   "license": "Unlicense",
   "description": "A secure file vault application with encryption",
+  "homepage": "https://github.com/cogrow4/Locky",
   "dependencies": {
     "crypto-js": "^4.2.0",
     "fs-extra": "^11.3.2",
@@ -75,7 +79,15 @@
     "linux": {
       "icon": "assets/icon.png",
       "target": ["AppImage", "deb", "rpm"],
-      "category": "Utility"
+      "category": "Utility",
+      "maintainer": "Cogrow4 <cogrow4@example.com>",
+      "desktop": {
+        "Name": "Locky",
+        "Comment": "A secure file vault application",
+        "Type": "Application",
+        "Terminal": "false",
+        "Categories": "Utility;Security;"
+      }
     },
     "target": [
       {
