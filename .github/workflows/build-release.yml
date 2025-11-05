@@ -61,10 +61,18 @@ jobs:
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: List build artifacts
+    - name: List build artifacts (Unix)
+      if: runner.os != 'Windows'
       run: |
         echo "Built files in ${{ env.BUILD_DIR }}:"
         find ${{ env.BUILD_DIR }} -type f -exec ls -la {} \;
+
+    - name: List build artifacts (Windows)
+      if: runner.os == 'Windows'
+      shell: pwsh
+      run: |
+        Write-Host "Built files in ${{ env.BUILD_DIR }}:"
+        Get-ChildItem -Path ${{ env.BUILD_DIR }} -Recurse -File | Format-Table FullName, Length, LastWriteTime
 
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4
